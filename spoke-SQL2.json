@@ -4,7 +4,7 @@
     "parameters": {
         "environmentName": {
             "type": "string",
-            "defaultValue": "samanthaTest1",
+            "defaultValue": "samanthaTest2",
             "metadata": {
                 "description": "The name of the environment"
             }
