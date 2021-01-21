@@ -1,0 +1,277 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environmentName": {
+            "type": "string",
+            "defaultValue": "samanthaTest1",
+            "metadata": {
+                "description": "The name of the environment"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "eastasia",
+            "allowedValues": [
+                "australiaeast",
+                "eastasia",
+                "southeastasia"
+            ],
+            "metadata": {
+                "description": "Location of the resources"
+            }
+        },
+      "logAnalyticsWorkspaceID": {
+        "type": "string",
+        "defaultValue": "/subscriptions/e4ec092e-d16b-48f2-8e97-103255b4c242/resourceGroups/samanthaTest1/providers/microsoft.operationalinsights/workspaces/samanthaTest2",
+        "metadata": {
+          "description": "Resource Id of the Log Analytics, is should be in the format of /subscriptions/<Sub ID>/resourceGroups/<Resource group name>/providers/Microsoft.OperationalInsights/workspaces/<workspace name>"
+        }
+      },
+        "adminPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Admin password. Must be a strong password"
+            }
+        },
+        "databaseNames": {
+            "type": "array",
+            "defaultValue": [
+                "Accounts",
+                "Assets",
+                "Auth",
+                "Balances",
+                "Broking",
+                "Communications",
+                "Contributions",
+                "DriveWealth",
+                "Ev",
+                "Forms",
+                "Fx",
+                "Lookup",
+                "Orders",
+                "Osl",
+                "Payments",
+                "Products",
+                "Relations",
+                "Storage",
+                "Tenants",
+                "Transactions",
+                "Transfers",
+                "Truth"
+            ],
+            "metadata": {
+                "description": "Array of names for the SQL databases"
+            }
+        }
+    },
+    "variables": {
+     //   "virtualNetworkName": "[toLower(concat(parameters('environmentName'),'-vnet'))]",
+        "sqlServerName": "[toLower(concat(parameters('environmentName'),'-sqlserver'))]",
+       // "sqlPrivateEndpointName": "[toLower(concat(parameters('environmentName'),'-sqlserver-privateEndpoint'))]",
+        "databaseNames": "[parameters('databaseNames')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2018-09-01",
+            "name": "privatelink.database.windows.net",
+            "location": "global",
+            "properties": {}
+        },
+      
+      
+ 
+
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[variables('sqlServerName')]",
+            "location": "[parameters('location')]",
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[concat(parameters('environmentName'),'sqladmin')]",
+                "administratorLoginPassword": "[parameters('adminPassword')]",
+                "version": "12.0",
+                "minimalTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled"
+            },
+            "resources": [
+                {
+                    "type": "databases",
+                    "apiVersion": "2017-03-01-preview",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "name": "master",
+                    "properties": {},
+                    "resources": [
+                    ]
+                },
+                {
+                    "type": "databases/providers/diagnosticSettings",
+                    "name": "[concat('master/microsoft.insights/systemdiag')]",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]",
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerName'), '/databases/master')]"
+                    ],
+                    "apiVersion": "2017-05-01-preview",
+                    "properties": {
+                        "name": "system",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                        "logs": [
+                            {
+                                "category": "SQLSecurityAuditEvents",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "apiVersion": "2017-03-01-preview",
+                    "type": "auditingSettings",
+                    "name": "DefaultAuditingSettings",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+                    ],
+                    "properties": {
+                        "State": "Enabled",
+                        "auditActionsAndGroups": [
+                            "BATCH_COMPLETED_GROUP",
+                            "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",
+                            "FAILED_DATABASE_AUTHENTICATION_GROUP"
+                        ],
+                        "isAzureMonitorTargetEnabled": true
+                    }
+                },
+                {
+                    "name": "securityAlertPolicies",
+                    "type": "securityAlertPolicies",
+                    "apiVersion": "2020-02-02-preview",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+                    ],
+                    "properties": {
+                        "state": "Enabled"
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "2020-02-02-preview",
+            "type": "Microsoft.Sql/servers/databases",
+            "sku": {
+                "name": "S0",
+                "tier": "Standard"
+            },
+            "kind": "v12.0,user",
+            "location": "[parameters('location')]",
+            "name": "[concat(string(variables('sqlServerName')), '/', string(variables('databaseNames')[copyIndex()]))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+            ],
+            "tags": {
+                "DisplayName": "[variables('sqlServerName')]"
+            },
+            "copy": {
+                "name": "databaseCopy",
+                "count": "[length(variables('databaseNames'))]"
+            },
+            "properties": {},
+            "resources": [
+                {
+                    "apiVersion": "2020-02-02-preview",
+                    "type": "securityAlertPolicies",
+                    "name": "default",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseNames')[copyIndex()])]"
+                    ],
+                    "properties": {
+                        "state": "Enabled"
+                    }
+                },
+                {
+                    "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+                    "apiVersion": "2020-02-02-preview",
+                    "name": "[concat(variables('sqlServerName'), '/', variables('databaseNames')[copyIndex()], '/default')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseNames')[copyIndex()])]"
+                    ],
+                    "properties": {
+                        "retentionDays": 35
+                    }
+                },
+                {
+                    "type": "microsoft.sql/servers/databases/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(variables('sqlServerName'),'/',variables('databaseNames')[copyIndex()],'/microsoft.insights/system')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseNames')[copyIndex()])]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                        "logs": [
+                            {
+                                "category": "SQLInsights",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AutomaticTuning",
+                                "enabled": true
+                            },
+                            {
+                                "category": "QueryStoreRuntimeStatistics",
+                                "enabled": true
+                            },
+                            {
+                                "category": "QueryStoreWaitStatistics",
+                                "enabled": true
+                            },
+                            {
+                                "category": "Errors",
+                                "enabled": true
+                            },
+                            {
+                                "category": "DatabaseWaitStatistics",
+                                "enabled": true
+                            },
+                            {
+                                "category": "Timeouts",
+                                "enabled": true
+                            },
+                            {
+                                "category": "Blocks",
+                                "enabled": true
+                            },
+                            {
+                                "category": "Deadlocks",
+                                "enabled": true
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "Basic",
+                                "enabled": true
+                            },
+                            {
+                                "category": "InstanceAndAppAdvanced",
+                                "enabled": true
+                            },
+                            {
+                                "category": "WorkloadManagement",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+    }
+}
