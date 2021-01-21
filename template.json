@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "serverName": {
-            "defaultValue": "[uniqueString('sql', resourceGroup().id)]",
+            "defaultValue": "[toLower(concat(uniqueString('sql', resourceGroup().id),'-devops'))]",
             "type": "String",
             "metadata": {
                 "description": "The name of the SQL logical server."
