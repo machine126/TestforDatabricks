@@ -45,7 +45,8 @@
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[parameters('administratorLogin')]",
-                "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                 "contentType": "SecureString",
             }
         }
     ]
