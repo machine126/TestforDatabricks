@@ -44,9 +44,13 @@
       "apiVersion": "2020-02-02-preview",
       "name": "[parameters('serverName')]",
       "location": "[parameters('location')]",
-       "contentType": "SecureString",
+      
       "properties": {
          "contentType": "SecureString",
+              "mode": "Incremental",
+        "debugSetting": {
+          "detailLevel": "none"
+        },
         "administratorLogin": "[parameters('administratorLogin')]",
         "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
       }
