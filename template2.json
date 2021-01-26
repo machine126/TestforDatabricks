@@ -47,12 +47,11 @@
       
       "properties": {
   
-         "mode": "Incremental",
-
         "administratorLogin": "[parameters('administratorLogin')]",
         
 
         "administratorLoginPassword":{
+          "name":"administratorLoginPassword",
           "value" :"[parameters('administratorLoginPassword')]",
           "contentType": "SecureString"
         } 
