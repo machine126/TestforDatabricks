@@ -40,20 +40,17 @@
   "variables": {},
   "resources": [
     {
+      		"debugSetting": {
+					"detailLevel": "none"
+				},
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2020-02-02-preview",
       "name": "[parameters('serverName')]",
       "location": "[parameters('location')]",
       
       "properties": {
-  
         "administratorLogin": "[parameters('administratorLogin')]",
-        
-
-        "administratorLoginPassword":{
-          "value" :"[parameters('administratorLoginPassword')]",
-          "type": "SecureString"
-        } 
+        "administratorLoginPassword":"[parameters('administratorLoginPassword')]",
       }
 
     }
