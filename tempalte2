@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "condition": "[parameters('vaults_demo01-dev-vault-core-we_condition')]",
+      "name": "kptestvault",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "resourceGroup": "bishal-test-secret",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+            "vaults_demo01-dev-vault-core-we_condition": {
+                "value": true
+            },
+            "mytestsecret": {
+                "value": "[parameters('mytestsecret')]"
+            }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "vaults_demo01-dev-vault-core-we_condition": {
+              "type": "bool"
+            },
+            "mytestsecret": {
+              "type": "SecureString"
+            }
+          },
+
+              "resources": [
+                {
+                  "name": "mytestsecret",
+                  "type": "secrets",
+                  "apiVersion": "2019-09-01",
+                  "tags": {
+                    "projectKey": "demo01",
+                    "environment": "dev",
+                    "alias": "demo"
+                  },
+                  "properties": {
+                    "value": "[parameters('mytestsecret')]",
+                    "contentType": "SecureString",
+                    "attributes": {
+                      "enabled": true
+                    }
+                  },
+                  "condition": true,
+                 
+          
+                }
+              ]
+            }
+          
+        },
+        "mode": "Incremental",
+        "debugSetting": {
+          "detailLevel": "none"
+        }
+      }
+    }
+  ],
+  "parameters": {
+    "vaults_demo01-dev-vault-core-we_condition": {
+      "allowedValues": [],
+      "metadata": {
+        "description": "add a description"
+      },
+      "defaultValue": false,
+      "type": "bool"
+    },
+    "mytestsecret": {
+      "allowedValues": [],
+      "metadata": {
+        "description": "add a description"
+      },
+      "defaultValue": "test value 9",
+      "type": "SecureString"
+    }
+  }
+}
