@@ -50,4 +50,7 @@
             }
         }
     ]
+    		"debugSetting": {
+					"detailLevel": "none"
+				}
 }
