@@ -37,28 +37,7 @@
         "databaseNames": {
             "type": "array",
             "defaultValue": [
-                "Accounts",
-                "Assets",
-                "Auth",
-                "Balances",
-                "Broking",
-                "Communications",
-                "Contributions",
-                "DriveWealth",
-                "Ev",
-                "Forms",
-                "Fx",
-                "Lookup",
-                "Orders",
-                "Osl",
-                "Payments",
-                "Products",
-                "Relations",
-                "Storage",
-                "Tenants",
-                "Transactions",
-                "Transfers",
-                "Truth"
+                "Accounts"
             ],
             "metadata": {
                 "description": "Array of names for the SQL databases"
@@ -72,15 +51,7 @@
         "databaseNames": "[parameters('databaseNames')]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Network/privateDnsZones",
-            "apiVersion": "2018-09-01",
-            "name": "privatelink.database.windows.net",
-            "location": "global",
-            "properties": {}
-        },
-      
-      
+     
  
 
         {
@@ -95,6 +66,7 @@
                 "version": "12.0",
                 "minimalTlsVersion": "1.2",
                 "publicNetworkAccess": "Enabled"
+                "contentType": "SecureString"
             },
             "resources": [
                 {
