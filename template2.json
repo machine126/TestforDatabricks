@@ -51,9 +51,8 @@
         
 
         "administratorLoginPassword":{
-          "name":"administratorLoginPassword",
           "value" :"[parameters('administratorLoginPassword')]",
-          "contentType": "SecureString"
+          "type": "SecureString"
         } 
       }
 
