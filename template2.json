@@ -1,85 +1,56 @@
+
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serverName": {
+      "type": "string",
+      "defaultValue": "[uniqueString('sql', resourceGroup().id)]",
+      "metadata": {
+        "description": "The name of the SQL logical server."
+      }
+    },
+    "sqlDBName": {
+      "type": "string",
+      "defaultValue": "SampleDB",
+      "metadata": {
+        "description": "The name of the SQL Database."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "administratorLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "The administrator username of the SQL logical server."
+      }
+    },
+    "administratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The administrator password of the SQL logical server."
+      }
+    }
+  },
+  "variables": {},
   "resources": [
     {
-      "condition": "[parameters('vaults_demo01-dev-vault-core-we_condition')]",
-      "name": "kptestvault",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
-      "resourceGroup": "bishal-test-secret",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[parameters('serverName')]",
+      "location": "[parameters('location')]",
+       "contentType": "SecureString",
       "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "parameters": {
-            "vaults_demo01-dev-vault-core-we_condition": {
-                "value": true
-            },
-            "mytestsecret": {
-                "value": "[parameters('mytestsecret')]"
-            }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {
-            "vaults_demo01-dev-vault-core-we_condition": {
-              "type": "bool"
-            },
-            "mytestsecret": {
-              "type": "SecureString"
-            }
-          },
-
-              "resources": [
-                {
-                  "name": "mytestsecret",
-                  "type": "secrets",
-                  "apiVersion": "2019-09-01",
-                  "tags": {
-                    "projectKey": "demo01",
-                    "environment": "dev",
-                    "alias": "demo"
-                  },
-                  "properties": {
-                    "value": "[parameters('mytestsecret')]",
-                    "contentType": "SecureString",
-                    "attributes": {
-                      "enabled": true
-                    }
-                  },
-                  "condition": true,
-                 
-          
-                }
-              ]
-            }
-          
-        },
-        "mode": "Incremental",
-        "debugSetting": {
-          "detailLevel": "none"
-        }
+         "contentType": "SecureString",
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
       }
-    
-  ],
-  "parameters": {
-    "vaults_demo01-dev-vault-core-we_condition": {
-      "allowedValues": [],
-      "metadata": {
-        "description": "add a description"
-      },
-      "defaultValue": false,
-      "type": "bool"
-    },
-    "mytestsecret": {
-      "allowedValues": [],
-      "metadata": {
-        "description": "add a description"
-      },
-      "defaultValue": "test value 9",
-      "type": "SecureString"
+
     }
-  }
+  ]
 }
