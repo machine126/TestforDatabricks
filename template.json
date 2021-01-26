@@ -47,6 +47,7 @@
                 "administratorLogin": "[parameters('administratorLogin')]",
                 "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
                 "contentType" : "SecureString"
+            }
         }
     ]
 }
