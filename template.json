@@ -36,6 +36,10 @@
             }
         }
     },
+	
+    		"debugSetting": {
+					"detailLevel": "none"
+				},
     "variables": {},
     "resources": [
         {
@@ -50,7 +54,4 @@
             }
         }
     ]
-    		"debugSetting": {
-					"detailLevel": "none"
-				}
 }
