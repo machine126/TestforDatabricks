@@ -46,12 +46,13 @@
       "location": "[parameters('location')]",
       
       "properties": {
-         "contentType": "SecureString",
-              "mode": "Incremental",
-        "debugSetting": {
-          "detailLevel": "none"
+        "contentType": "SecureString",
+         "mode": "Incremental",
+
+        "administratorLogin": {
+         value: "[parameters('administratorLogin')]",
+          "contentType": "SecureString"
         },
-        "administratorLogin": "[parameters('administratorLogin')]",
         "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
       }
 
