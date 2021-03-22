@@ -11,7 +11,7 @@
 },
 "tags": {
 "type": "object",
-"defaultValue": "WestUS"
+"Value": "WestUS"
 }
 },
 "variables": {},
