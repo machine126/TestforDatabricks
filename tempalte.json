@@ -7,11 +7,11 @@
 "type": "string"
 },
 "rgLocation": {
+ "defaultValue": "WestUS",
 "type": "string"
 },
 "tags": {
-"type": "object",
-"Value": "WestUS"
+"type": "object"
 }
 },
 "variables": {},
